@@ -28,7 +28,7 @@ jobs:
           python main.py
 
       - name: 생성된 초안 파일 저장소에 업로드
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: stock-draft
           path: draft.txt
