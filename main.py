@@ -1,17 +1,17 @@
 import os
-import google.generativeai as genai
+from google import genai
 
-# Gemini API 키 설정
+# Gemini API 키 설정 및 클라이언트 생성
 api_key = os.environ.get("GEMINI_API_KEY")
-genai.configure(api_key=api_key)
+client = genai.Client(api_key=api_key)
 
-# 프롬프트 설정 (외국인 순매수 데이터 기반 쉬운 영문 초안 작성)
+# 프롬프트 설정 (대중을 위한 쉬운 영어 작성 지침 포함)
 prompt = """
 You are a financial content writer for global retail investors.
 Write a blog post, an X (Twitter) thread, and a Substack newsletter draft based on today's Korean stock market foreign net buying data.
 
 Requirements:
-1. Language: Simple, everyday English (clear and easy for general readers).
+1. Language: Simple, everyday English for general readers. Avoid jargon unless necessary.
 2. Target: Foreign investors looking for Korean stock insights (focus on context behind data, local industry specifics).
 3. Include a mandatory financial disclaimer at the end.
 4. Output Format:
@@ -19,9 +19,11 @@ Requirements:
    - [X Post] Short summary with key numbers and link placeholder.
 """
 
-# AI 모델 호출 및 실행
-model = genai.GenerativeModel('gemini-1.5-flash')
-response = model.generate_content(prompt)
+# 최신 Gemini 모델 호출
+response = client.models.generate_content(
+    model='gemini-2.5-flash',
+    contents=prompt,
+)
 
 # 생성된 초안 출력 및 저장
 print(response.text)
