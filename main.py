@@ -11,7 +11,7 @@ You are a financial content writer for global retail investors.
 Write a blog post, an X (Twitter) thread, and a Substack newsletter draft based on today's Korean stock market foreign net buying data.
 
 Requirements:
-1. Language: Simple, everyday English for general readers. Avoid jargon unless necessary.
+1. Language: Simple, everyday English for general readers. Avoid complex jargon.
 2. Target: Foreign investors looking for Korean stock insights (focus on context behind data, local industry specifics).
 3. Include a mandatory financial disclaimer at the end.
 4. Output Format:
@@ -19,9 +19,9 @@ Requirements:
    - [X Post] Short summary with key numbers and link placeholder.
 """
 
-# 최신 Gemini 모델 호출
+# 최신 Gemini 모델 호출 (gemini-3.6-flash 지정)
 response = client.models.generate_content(
-    model='gemini-2.5-flash',
+    model='gemini-3.6-flash',
     contents=prompt,
 )
 
