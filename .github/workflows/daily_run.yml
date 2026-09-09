@@ -1,0 +1,34 @@
+name: Run K-Stock Tracker Daily
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 정해진 시간에 자동 실행
+  workflow_dispatch:      # 수동으로 실행 테스트 가능하게 설정
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 코드 가져오기
+        uses: actions/checkout@v3
+
+      - name: 파이썬 환경 설정
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 필요 라이브러리 설치
+        run: |
+          pip install -r requirements.txt
+
+      - name: AI 초안 생성 프로그램 실행
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python main.py
+
+      - name: 생성된 초안 파일 저장소에 업로드
+        uses: actions/upload-artifact@v3
+        with:
+          name: stock-draft
+          path: draft.txt
