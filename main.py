@@ -1,6 +1,7 @@
 import os
+import json
+import urllib.request
 import yfinance as yf
-from google import genai
 
 # 1. 8개 대표 종목 실시간 주가 수집 (Yahoo Finance 티커)
 tickers = {
@@ -25,9 +26,7 @@ for name, ticker in tickers.items():
         price_usd = price / usd_krw
         market_data_text += f"- {name} ({ticker}): {price:,.0f} KRW (~${price_usd:.2f} USD)\n"
 
-# 2. Gemini API 클라이언트 설정 (보안 환경변수 사용)
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-
+# 2. 프롬프트 작성
 prompt = f"""
 You are a professional financial blogger writing a daily market report on top Korean stocks for foreign investors.
 Use the following ACCURATE REAL-TIME MARKET DATA provided below for stock prices and exchange rates. DO NOT invent or change any prices or exchange rates.
@@ -52,14 +51,30 @@ At the very end of the post, always include this financial disclaimer:
 "Disclaimer: The information provided in this post is for informational and educational purposes only and does not constitute financial or investment advice. Always conduct your own research before making investment decisions."
 """
 
-# 3. 구글 GenAI 최신 모델 호출
-response = client.models.generate_content(
-    model='gemini-2.5-flash',
-    contents=prompt,
-)
+# 3. Gemini REST API 직접 호출 (SDK 충돌 방지)
+api_key = os.environ.get("GEMINI_API_KEY")
+url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
 
-# 4. 결과를 draft.txt 파일로 저장
-with open("draft.txt", "w", encoding="utf-8") as f:
-    f.write(response.text)
+headers = {"Content-Type": "application/json"}
+payload = {
+    "contents": [
+        {
+            "parts": [{"text": prompt}]
+        }
+    ]
+}
 
-print("draft.txt generated successfully with real-time stock data!")
+req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
+
+try:
+    with urllib.request.urlopen(req) as response:
+        result = json.loads(response.read().decode("utf-8"))
+        generated_text = result["candidates"][0]["content"]["parts"][0]["text"]
+        
+        # 4. 결과를 draft.txt 파일로 저장
+        with open("draft.txt", "w", encoding="utf-8") as f:
+            f.write(generated_text)
+        print("draft.txt generated successfully with real-time stock data!")
+except Exception as e:
+    print(f"API Request Failed: {e}")
+    raise e
