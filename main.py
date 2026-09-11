@@ -1,7 +1,7 @@
 import os
 from google import genai
 
-# Gemini API 클라이언트 설정
+# Gemini API 클라이언트 설정 (보안을 위해 환경변수 사용)
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 prompt = """
@@ -22,9 +22,9 @@ At the very end of the post, always include this financial disclaimer:
 "Disclaimer: The information provided in this post is for informational and educational purposes only and does not constitute financial or investment advice. Always conduct your own research before making investment decisions."
 """
 
-# Gemini 모델을 사용해 글 생성
+# Gemini 최신 모델을 사용해 글 생성
 response = client.models.generate_content(
-    model='gemini-2.5-flash',
+    model='gemini-3.6-flash',
     contents=prompt,
 )
 
