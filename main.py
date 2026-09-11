@@ -25,7 +25,7 @@ for name, ticker in tickers.items():
         price_usd = price / usd_krw
         market_data_text += f"- {name} ({ticker}): {price:,.0f} KRW (~${price_usd:.2f} USD)\n"
 
-# 2. Gemini API 클라이언트 설정
+# 2. Gemini API 클라이언트 설정 (보안 환경변수 사용)
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 prompt = f"""
@@ -52,9 +52,9 @@ At the very end of the post, always include this financial disclaimer:
 "Disclaimer: The information provided in this post is for informational and educational purposes only and does not constitute financial or investment advice. Always conduct your own research before making investment decisions."
 """
 
-# 3. Gemini 공식 지원 모델로 글 생성
+# 3. 구글 GenAI 최신 규격 모델(gemini-2.0-flash) 적용
 response = client.models.generate_content(
-    model='gemini-1.5-flash',
+    model='gemini-2.0-flash',
     contents=prompt,
 )
 
