@@ -52,7 +52,7 @@ At the very end of the post, always include this financial disclaimer:
 "Disclaimer: The information provided in this post is for informational and educational purposes only and does not constitute financial or investment advice. Always conduct your own research before making investment decisions."
 """
 
-# 3. 구글 GenAI 최신 규격 모델(gemini-2.0-flash) 적용
+# 3. 구글 GenAI 공식 최신 안정 모델(gemini-2.0-flash) 적용
 response = client.models.generate_content(
     model='gemini-2.0-flash',
     contents=prompt,
