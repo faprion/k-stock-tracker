@@ -1,6 +1,6 @@
 import os
 import yfinance as yf
-from google import genai
+import google.generativeai as genai
 
 # 1. 8개 대표 종목 실시간 주가 수집 (Yahoo Finance 티커)
 tickers = {
@@ -25,8 +25,8 @@ for name, ticker in tickers.items():
         price_usd = price / usd_krw
         market_data_text += f"- {name} ({ticker}): {price:,.0f} KRW (~${price_usd:.2f} USD)\n"
 
-# 2. Gemini API 클라이언트 설정 (보안 환경변수 사용)
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+# 2. 구글 Gemini 설정 (안정 버전 라이브러리)
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 prompt = f"""
 You are a professional financial blogger writing a daily market report on top Korean stocks for foreign investors.
@@ -52,11 +52,9 @@ At the very end of the post, always include this financial disclaimer:
 "Disclaimer: The information provided in this post is for informational and educational purposes only and does not constitute financial or investment advice. Always conduct your own research before making investment decisions."
 """
 
-# 3. 가장 안정적인 구글 공식 모델(gemini-1.5-flash) 적용
-response = client.models.generate_content(
-    model='gemini-1.5-flash',
-    contents=prompt,
-)
+# 3. 가장 안정적이고 오류 없는 구글 공식 모델 호출
+model = genai.GenerativeModel('gemini-1.5-flash')
+response = model.generate_content(prompt)
 
 # 4. 결과를 draft.txt 파일로 저장
 with open("draft.txt", "w", encoding="utf-8") as f:
