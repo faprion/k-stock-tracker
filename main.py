@@ -67,7 +67,7 @@ for idx, row in top2_volume.iterrows():
 print("선정된 8종목:", selected)
 
 # ============================================================
-# 3. 투자유의 지정내역 체크 (네이버금융, 텍스트 키워드 검색 — 검증 필요)
+# 3. 투자유의 지정내역 체크 (네이버금융, 텍스트 키워드 검색 - 검증 필요)
 # ============================================================
 def check_investment_caution(ticker):
     url = f"https://finance.naver.com/item/main.naver?code={ticker}"
@@ -109,12 +109,35 @@ def get_yfinance_detail(ticker, market):
     }
 
 def fmt_krw_usd(value):
+    """일반적인 금액(주가, 52주 고저가 등)을 KRW (~$USD) 형식으로 표기"""
     if value is None:
         return "정보 없음"
     try:
         return f"{value:,.0f} KRW (~${value/usd_krw:,.2f} USD)"
     except Exception:
         return "정보 없음"
+
+def fmt_market_cap(value_krw):
+    """시가총액을 T(조)/B(십억)/M(백만) 단위로 축약 표기 (미국 증권앱 스타일)"""
+    if value_krw is None:
+        return "Data not available"
+    try:
+        def abbreviate(n):
+            if n >= 1e12:
+                return f"{n/1e12:.2f}T"
+            elif n >= 1e9:
+                return f"{n/1e9:.2f}B"
+            elif n >= 1e6:
+                return f"{n/1e6:.2f}M"
+            else:
+                return f"{n:,.0f}"
+
+        krw_abbr = abbreviate(value_krw)
+        usd_value = value_krw / usd_krw
+        usd_abbr = abbreviate(usd_value)
+        return f"{krw_abbr} KRW (~${usd_abbr} USD)"
+    except Exception:
+        return "Data not available"
 
 # ============================================================
 # 5. 8종목 데이터 통합
@@ -130,7 +153,7 @@ for ticker, name, market, category in selected:
 [{category}] {name} ({ticker})
 - 현재가: {fmt_krw_usd(detail['가격'])}
 - 당일 등락률: {f"{detail['등락률']:+.2f}%" if detail['등락률'] is not None else '정보 없음'}
-- 시가총액: {fmt_krw_usd(detail['시가총액'])}
+- 시가총액: {fmt_market_cap(detail['시가총액'])}
 - 52주 최고/최저: {fmt_krw_usd(detail['52주최고'])} / {fmt_krw_usd(detail['52주최저'])}
 - 배당수익률: {f"{detail['배당수익률']*100:.2f}%" if detail['배당수익률'] else '정보 없음'}
 - 투자유의 지정내역: {caution}
